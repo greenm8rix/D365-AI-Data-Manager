@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://chromewebstore.google.com/detail/d365-ai-data-manager/kohhbmpnanpfbdbgladijhohdgbfmagh"><img src="https://img.shields.io/chrome-web-store/v/kohhbmpnanpfbdbgladijhohdgbfmagh?label=Chrome%20Web%20Store&logo=googlechrome&logoColor=white&color=4285F4" alt="Chrome Web Store" /></a>
-  <a href="https://github.com/greenm8rix/D365-AI-Data-Manager/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>
+  <a href="https://github.com/nawafsheikh/D365-AI-Data-Manager/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>
   <img src="https://img.shields.io/badge/manifest-v3-green.svg" alt="Manifest V3" />
   <img src="https://img.shields.io/badge/build-no%20bundler-orange.svg" alt="No Bundler" />
 </p>
@@ -105,7 +105,7 @@ Ask the AI to filter, sort, join, highlight, or export your data using plain Eng
 
 1. **Clone the repo**
    ```bash
-   git clone https://github.com/greenm8rix/D365-AI-Data-Manager.git
+   git clone https://github.com/nawafsheikh/D365-AI-Data-Manager.git
    ```
 
 2. **Open Chrome** and navigate to `chrome://extensions/`
@@ -323,5 +323,5 @@ See [privacy-policy.html](privacy-policy.html) for the full privacy policy.
 ---
 
 <p align="center">
-  Built for the D365 F&O community by <a href="https://github.com/greenm8rix">greenm8rix</a>
+  Built for the D365 F&O community by <a href="https://github.com/nawafsheikh">nawafsheikh</a>
 </p>
