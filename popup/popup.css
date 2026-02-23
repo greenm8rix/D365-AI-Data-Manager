@@ -1,0 +1,379 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 400px;
+  height: 500px;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  background: #0078d4;
+  color: white;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.logo {
+  background: rgba(255,255,255,0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.env-badge {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.env-badge.prod { background: #dc3545; }
+.env-badge.uat { background: #fd7e14; }
+.env-badge.dev { background: #28a745; }
+.env-badge.gov { background: #5b5fc7; }
+.env-badge.gov-cn { background: #5b5fc7; }
+.env-badge.custom { background: #6b7280; }
+
+/* Search */
+.search-section {
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  border-color: #0078d4;
+  box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.15);
+}
+
+.search-icon {
+  position: absolute;
+  left: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 14px;
+}
+
+/* Entity List */
+.entity-list {
+  flex: 1;
+  overflow-y: auto;
+  background: white;
+}
+
+.entity-section {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.section-header {
+  padding: 8px 16px;
+  background: #f8f9fa;
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.section-header:hover {
+  background: #f0f0f0;
+}
+
+.section-icon {
+  font-size: 12px;
+}
+
+.section-count {
+  margin-left: auto;
+  background: #e0e0e0;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+}
+
+.entity-item {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.entity-item:hover {
+  background: #f0f7ff;
+}
+
+.entity-item:active {
+  background: #e0efff;
+}
+
+.entity-icon {
+  font-size: 16px;
+  width: 24px;
+  text-align: center;
+}
+
+.entity-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.entity-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.entity-label {
+  font-size: 11px;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.entity-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.entity-item:hover .entity-actions {
+  opacity: 1;
+}
+
+.btn-action {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.btn-action:hover {
+  background: rgba(0, 120, 212, 0.1);
+}
+
+.btn-action.favorite {
+  color: #888;
+}
+
+.btn-action.favorite.active {
+  color: #ffc107;
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #888;
+  gap: 12px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #0078d4;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  color: #888;
+}
+
+.empty-state .icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state .title {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.empty-state .subtitle {
+  font-size: 12px;
+}
+
+/* Footer */
+.footer {
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status {
+  font-size: 11px;
+  color: #666;
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-icon:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+/* Error Panel */
+.error-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff3cd;
+  border-top: 1px solid #ffc107;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: slideUp 0.3s ease;
+}
+
+.error-panel.hidden {
+  display: none;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error-icon {
+  font-size: 16px;
+  color: #856404;
+}
+
+.error-message {
+  font-size: 12px;
+  color: #856404;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  background: #0078d4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-small:hover {
+  background: #005a9e;
+}
+
+/* Scrollbar */
+.entity-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.entity-list::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+.entity-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.entity-list::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* Highlight matched text */
+.highlight {
+  background: #fff3cd;
+  padding: 0 2px;
+  border-radius: 2px;
+}

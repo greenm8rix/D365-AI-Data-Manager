@@ -1,0 +1,24 @@
+# Claude Code
+.claude/
+
+# Build artifacts
+*.zip
+*.crx
+*.pem
+
+# Video promo project (not part of extension)
+video/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log

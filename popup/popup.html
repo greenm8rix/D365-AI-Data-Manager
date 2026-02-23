@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <div class="title">
+      <span class="logo">D365</span>
+      <span>Table Browser</span>
+    </div>
+    <div class="env-badge" id="envBadge">--</div>
+  </div>
+
+  <div class="search-section">
+    <input type="text" id="entitySearch" class="search-input" placeholder="Search entities..." autofocus>
+    <div class="search-icon">&#128269;</div>
+  </div>
+
+  <div class="entity-list" id="entityList">
+    <div class="loading">
+      <div class="spinner"></div>
+      <span>Loading entities...</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="status" id="status">Ready</div>
+    <div class="actions">
+      <button id="refreshBtn" class="btn-icon" title="Refresh entities">&#8635;</button>
+      <button id="settingsBtn" class="btn-icon" title="Settings">&#9881;</button>
+    </div>
+  </div>
+
+  <div id="errorPanel" class="error-panel hidden">
+    <div class="error-content">
+      <span class="error-icon">&#9888;</span>
+      <span class="error-message" id="errorMessage">Not connected to D365</span>
+    </div>
+    <button id="retryBtn" class="btn-small">Retry</button>
+  </div>
+
+  <script src="../shared/odata-client.js"></script>
+  <script src="../shared/storage.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — D365 AI Data Manager</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1a1a2e;
+      --muted: #555;
+      --accent: #2563eb;
+      --border: #e5e7eb;
+      --card-bg: #f9fafb;
+      --hero-bg: #f0fdf4;
+      --hero-border: #bbf7d0;
+      --hero-text: #065f46;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --accent: #60a5fa;
+        --border: #334155;
+        --card-bg: #1e293b;
+        --hero-bg: #052e16;
+        --hero-border: #166534;
+        --hero-text: #86efac;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.25rem;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+    .hero {
+      background: var(--hero-bg);
+      border: 2px solid var(--hero-border);
+      border-radius: 12px;
+      padding: 2rem 2.5rem;
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .hero-headline {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--hero-text);
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--hero-text);
+      opacity: 0.85;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    h2 {
+      font-size: 1.15rem;
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    p, li {
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+    ul {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    strong { font-weight: 600; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      font-size: 0.85em;
+      background: var(--card-bg);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+    }
+    .last-updated {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Privacy Policy</h1>
+    <p class="subtitle">D365 AI Data Manager — Chrome Extension</p>
+
+    <div class="hero">
+      <div class="hero-headline">We do not collect, store, or sell your data.</div>
+      <p>No servers. No analytics. No tracking. No telemetry. Your data never touches our infrastructure.</p>
+    </div>
+
+    <h2>How It Works</h2>
+    <p>The extension runs entirely in your browser. OData queries go <strong>directly from your browser to your D365 environment</strong> using your existing session. No intermediary servers are involved.</p>
+    <p>Preferences (favorites, saved queries, settings) are saved locally in <code>chrome.storage.local</code> on your device and are never transmitted anywhere.</p>
+
+    <h2>AI Features (Optional)</h2>
+    <p>AI features are <strong>disabled by default</strong>. If you choose to enable them, you pick a provider and supply your own API key. When you send a query, the extension sends a snapshot of your current data view directly to the provider you chose — never through us.</p>
+    <p>The optional "Analyze with AI" feature lets you upload data to <a href="https://inferenc.es" target="_blank" rel="noopener">inferenc.es</a> for analysis. This only happens when you explicitly log in, click Analyze, and confirm the upload. Refer to the <a href="https://inferenc.es" target="_blank" rel="noopener">inferenc.es privacy policy</a> for how they handle data.</p>
+
+    <h2>Permissions</h2>
+    <ul>
+      <li><strong>activeTab</strong> — Detect your D365 environment URL</li>
+      <li><strong>storage</strong> — Save preferences locally</li>
+      <li><strong>D365 host permissions</strong> — Send OData queries to your environment</li>
+      <li><strong>AI host permissions</strong> (optional) — Only requested if you enable AI features</li>
+    </ul>
+
+    <h2>Children's Privacy</h2>
+    <p>This extension is designed for business use with Dynamics 365 and is not directed at children under 13.</p>
+
+    <h2>Contact</h2>
+    <p>For privacy questions, contact your organization's IT department.</p>
+
+    <div class="last-updated">Last updated: February 17, 2026</div>
+  </div>
+</body>
+</html>

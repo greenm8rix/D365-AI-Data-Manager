@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>D365 AI Data Manager</title>
+  <link rel="stylesheet" href="browser.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <span class="logo">D365</span>
+      <span class="title">Table Browser</span>
+    </div>
+    <div class="header-center">
+      <div class="entity-selector">
+        <input type="text" id="entityInput" class="entity-input" placeholder="Select entity...">
+        <div id="entityDropdown" class="entity-dropdown hidden"></div>
+      </div>
+      <button id="favoriteBtn" class="btn-icon" title="Add to favorites">&#9734;</button>
+      <div class="record-count" id="recordCount">-- records</div>
+      <button id="refreshBtn" class="btn-icon" title="Refresh data (Ctrl+R)">&#8635;</button>
+      <button id="loadAllBtn" class="btn-icon" title="Load all records into view">&#8681;</button>
+    </div>
+    <div class="header-right">
+      <div class="env-badge" id="envBadge" title="Click to edit label">--</div>
+      <button id="darkModeBtn" class="btn-icon" title="Toggle dark mode (Ctrl+D)">&#9790;</button>
+      <button id="settingsBtn" class="btn-icon" title="Settings">&#9881;</button>
+    </div>
+  </header>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <div class="quick-filter">
+        <span class="filter-icon">&#128269;</span>
+        <input type="text" id="quickFilter" class="quick-filter-input" placeholder="Search all text columns... (use * for wildcard)">
+        <button id="clearFilterBtn" class="btn-clear hidden" title="Clear filter">&times;</button>
+      </div>
+      <button id="addFilterBtn" class="btn-toolbar" title="Add filter condition">+ Filter</button>
+      <button id="queryBuilderBtn" class="btn-toolbar" title="Visual query builder">&#128736; Query Builder</button>
+      <button id="relatedEntitiesBtn" class="btn-toolbar" title="Expand related entities (JOIN)">&#128279; Related</button>
+      <button id="manualJoinBtn" class="btn-toolbar" title="Join with another entity">&#128200; Join</button>
+    </div>
+    <div class="toolbar-right">
+      <div class="view-buttons">
+        <button class="btn-view active" data-view="grid" title="Grid view">&#9783;</button>
+        <button class="btn-view" data-view="cards" title="Card view">&#9871;</button>
+      </div>
+      <button id="columnsBtn" class="btn-toolbar" title="Show/hide columns">Columns</button>
+      <div class="export-dropdown">
+        <button id="exportBtn" class="btn-toolbar btn-export" title="Export data (Ctrl+E)">&#128229; Export</button>
+        <div id="exportMenu" class="dropdown-menu hidden">
+          <button data-format="csv">Export Page to CSV</button>
+          <button data-format="excel">Export Page to Excel</button>
+          <button data-format="json">Export Page to JSON</button>
+          <button data-format="sql">Export Page as SQL INSERT</button>
+          <hr>
+          <button data-format="csv-selection">Export Selection to CSV</button>
+          <hr>
+          <button data-format="csv-all" class="export-all">Export ALL to CSV</button>
+          <button data-format="json-all" class="export-all">Export ALL to JSON</button>
+        </div>
+      </div>
+      <!-- Power Platform Dropdown -->
+      <div class="power-dropdown">
+        <button id="powerBtn" class="btn-toolbar btn-power" title="Export for Power Platform">
+          <span class="power-icon" id="powerBtnIcon"></span> Power Platform &#9662;
+        </button>
+        <div id="powerMenu" class="dropdown-menu hidden">
+          <div class="dropdown-section-header">OData</div>
+          <button data-power="copy-odata-url">Copy OData URL</button>
+          <hr>
+          <div class="dropdown-section-header"><span id="powerAutomateIcon"></span> Power Automate</div>
+          <button data-power="automate-connector">Copy Connector Settings</button>
+          <button data-power="automate-flow-download">Download Flow Definition (.json)</button>
+          <button data-power="automate-flow-json">Copy Flow Actions (JSON)</button>
+          <hr>
+          <div class="dropdown-section-header"><span id="powerAppsIcon"></span> Power Apps</div>
+          <button data-power="powerapps-fx">Copy Power Fx Collection</button>
+          <hr>
+          <div class="dropdown-section-header"><span id="powerBIIcon"></span> Power BI</div>
+          <button data-power="powerbi-pbids">Download .pbids</button>
+          <button data-power="powerbi-mquery">Copy M Query</button>
+        </div>
+      </div>
+      <!-- AI Buttons (visible only when AI enabled) -->
+      <div class="ai-buttons hidden" id="aiButtonsContainer">
+        <button id="aiAssistantBtn" class="btn-toolbar btn-ai" title="AI Query Assistant">
+          <span id="aiAssistantIcon"></span> AI Assistant
+        </button>
+        <button id="aiAnalyzeBtn" class="btn-toolbar btn-ai" title="Analyze with AI">
+          <span id="aiAnalyzeIcon"></span> Analyze
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Filters -->
+  <div id="activeFilters" class="active-filters hidden">
+    <div class="filters-list" id="filtersList"></div>
+    <button id="clearAllFiltersBtn" class="btn-clear-all">Clear All</button>
+  </div>
+
+  <!-- Debug Panel (toggle with Ctrl+Shift+D) -->
+  <div id="debugPanel" class="debug-panel hidden">
+    <div class="debug-header">
+      <span>🔧 Debug Info</span>
+      <button id="closeDebugBtn" class="btn-close">&times;</button>
+    </div>
+    <div class="debug-content">
+      <label>Generated $filter:</label>
+      <code id="debugFilter" class="debug-code">-</code>
+      <label>Full OData URL:</label>
+      <code id="debugUrl" class="debug-code">-</code>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Data Grid -->
+    <div id="gridContainer" class="grid-container">
+      <div class="loading" id="loadingOverlay">
+        <div class="spinner"></div>
+        <span class="loading-text">Loading data...</span>
+        <div class="progress-bar hidden" id="progressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="loading-stats hidden" id="loadingStats"></span>
+      </div>
+
+      <table class="data-grid" id="dataGrid">
+        <thead id="gridHeader"></thead>
+        <tbody id="gridBody"></tbody>
+      </table>
+
+      <div class="empty-state hidden" id="emptyState">
+        <div class="icon">&#128203;</div>
+        <div class="message">No data found</div>
+        <div class="hint">Try adjusting your filters</div>
+      </div>
+    </div>
+
+    <!-- Side Panel (Row Details / Column Profile) -->
+    <aside id="sidePanel" class="side-panel hidden">
+      <div class="panel-header">
+        <span class="panel-title" id="panelTitle">Details</span>
+        <button id="closePanelBtn" class="btn-close">&times;</button>
+      </div>
+      <div class="panel-content" id="panelContent"></div>
+    </aside>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu hidden">
+      <button data-action="copy-cell">📋 Copy Cell Value</button>
+      <button data-action="copy-row">📋 Copy Row as JSON</button>
+      <hr>
+      <button data-action="filter-equals">🔍 Filter: Equals this value</button>
+      <button data-action="filter-not-equals">🚫 Filter: Exclude this value</button>
+      <hr>
+      <button data-action="show-details">📄 Show Row Details</button>
+      <button data-action="copy-odata-url">🔗 Copy OData URL</button>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Analyze with AI Overlay -->
+    <div id="analyzeOverlay" class="analyze-overlay hidden">
+      <div class="analyze-modal">
+        <div class="analyze-step pending" id="analyzeStep1">
+          <div class="step-number">1</div>
+          <div class="step-body">
+            <div class="step-text">Exporting your data...</div>
+            <div class="step-detail" id="analyzeDetail1"></div>
+            <div class="step-progress"><div class="step-progress-fill" id="analyzeProg1"></div></div>
+          </div>
+        </div>
+        <div class="analyze-step pending" id="analyzeStep2">
+          <div class="step-number">2</div>
+          <div class="step-body">
+            <div class="step-text">Sending to inferenc.es...</div>
+            <div class="step-detail" id="analyzeDetail2"></div>
+            <div class="step-progress"><div class="step-progress-fill" id="analyzeProg2"></div></div>
+          </div>
+        </div>
+        <div class="analyze-step pending" id="analyzeStep3">
+          <div class="step-number">3</div>
+          <div class="step-body">
+            <div class="step-text">AI is analyzing your data...</div>
+            <div class="step-detail" id="analyzeDetail3"></div>
+            <div class="step-progress"><div class="step-progress-fill" id="analyzeProg3"></div></div>
+          </div>
+        </div>
+        <div class="analyze-status" id="analyzeStatus"></div>
+        <button id="analyzeCancelBtn" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer / Status Bar -->
+  <footer class="footer">
+    <div class="footer-left">
+      <span id="selectionInfo">0 selected</span>
+      <span class="separator">|</span>
+      <span id="pageInfo">Showing 0-0 of 0</span>
+      <span id="joinIndicator" class="join-indicator-footer hidden">INNER JOIN</span>
+    </div>
+    <div class="footer-center">
+      <button id="prevPageBtn" class="btn-page" disabled>&laquo; Prev</button>
+      <span class="page-number">Page <input type="number" id="pageInput" value="1" min="1"> of <span id="totalPages">1</span></span>
+      <button id="nextPageBtn" class="btn-page">Next &raquo;</button>
+    </div>
+    <div class="footer-right">
+      <span id="queryTime">Query: --ms</span>
+      <span class="separator">|</span>
+      <span class="readonly-badge">&#128274; READ-ONLY</span>
+    </div>
+  </footer>
+
+  <!-- AI Assistant Panel (floating) -->
+  <div id="aiPanel" class="ai-panel hidden">
+    <div class="ai-panel-header" id="aiPanelHeader">
+      <span>AI Query Assistant</span>
+      <button id="closeAIPanelBtn" class="btn-close">&times;</button>
+    </div>
+    <div class="ai-messages" id="aiMessages">
+      <div class="ai-message system">Ask me about your data. I can filter, sort, join, export, and highlight insights.</div>
+    </div>
+    <div id="aiConfirmDialog" class="ai-confirm-dialog hidden">
+      <div class="ai-confirm-header">Review AI Actions</div>
+      <div class="ai-confirm-list" id="aiConfirmList"></div>
+      <div class="ai-confirm-actions">
+        <button id="aiConfirmRunAll" class="btn-primary btn-small">Run All</button>
+        <button id="aiConfirmRunSelected" class="btn-secondary btn-small">Run Selected</button>
+        <button id="aiConfirmSkip" class="btn-secondary btn-small">Skip</button>
+      </div>
+    </div>
+    <div class="ai-input-area">
+      <textarea id="aiInput" placeholder="e.g., Show me all vendors with balance > 10000..." rows="2"></textarea>
+      <button id="aiSendBtn" class="btn-primary">Send</button>
+      <button id="aiStopBtn" class="btn-stop hidden">Stop</button>
+    </div>
+  </div>
+
+  <!-- Query Builder Modal -->
+  <div id="queryBuilderModal" class="modal hidden">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h3>&#128736; Query Builder</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="queryConditions" class="query-conditions">
+          <!-- Conditions will be added here -->
+        </div>
+        <div class="query-actions">
+          <button id="addConditionBtn" class="btn-secondary">+ Add Condition</button>
+          <button id="addGroupBtn" class="btn-secondary">+ Add Group (OR)</button>
+        </div>
+        <div class="query-preview">
+          <label>OData $filter:</label>
+          <code id="filterPreview">-</code>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelQueryBtn" class="btn-secondary">Cancel</button>
+        <button id="applyQueryBtn" class="btn-primary">Apply Filter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Columns Modal -->
+  <div id="columnsModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>&#128203; Column Visibility</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="columns-search">
+          <input type="text" id="columnSearch" placeholder="Search columns...">
+        </div>
+        <div class="columns-actions">
+          <button id="showAllColumnsBtn" class="btn-small">Show All</button>
+          <button id="hideAllColumnsBtn" class="btn-small">Hide All</button>
+        </div>
+        <div id="columnsList" class="columns-list">
+          <!-- Column checkboxes -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="applyColumnsBtn" class="btn-primary">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal hidden">
+    <div class="modal-content settings-modal">
+      <div class="modal-header">
+        <h3>Settings</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body settings-body">
+
+        <!-- Display Section -->
+        <div class="settings-section">
+          <div class="settings-section-title">Display</div>
+          <div class="settings-section-content">
+            <div class="settings-row">
+              <label class="settings-label" for="settingPageSize">Page Size</label>
+              <select id="settingPageSize" class="settings-input settings-input-compact">
+                <option value="25">25 rows</option>
+                <option value="50">50 rows</option>
+                <option value="100" selected>100 rows</option>
+                <option value="250">250 rows</option>
+                <option value="500">500 rows</option>
+                <option value="1000">1,000 rows</option>
+                <option value="5000">5,000 rows</option>
+                <option value="10000">10,000 rows</option>
+                <option value="25000">25,000 rows</option>
+                <option value="50000">50,000 rows</option>
+                <option value="100000">100,000 rows (max)</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <label class="settings-label" for="settingTheme">Theme</label>
+              <select id="settingTheme" class="settings-input settings-input-compact">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </div>
+            <div class="settings-toggles">
+              <label class="settings-toggle">
+                <input type="checkbox" id="settingShowRowNumbers">
+                <span class="toggle-text">Show row numbers</span>
+              </label>
+              <label class="settings-toggle">
+                <input type="checkbox" id="settingCompactMode">
+                <span class="toggle-text">Compact mode</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Section -->
+        <div class="settings-section">
+          <div class="settings-section-title">AI Features</div>
+          <div class="settings-section-content">
+            <label class="settings-toggle ai-toggle">
+              <input type="checkbox" id="settingAIEnabled">
+              <span class="toggle-text">Enable AI Assistant & Analyze</span>
+            </label>
+            <small class="settings-hint" style="margin-top:-4px">Requires an API key or inferenc.es account.</small>
+            <div id="aiSettingsDetail" class="ai-settings-detail hidden">
+              <div class="settings-row">
+                <label class="settings-label" for="settingAIProvider">Provider</label>
+                <select id="settingAIProvider" class="settings-input settings-input-compact">
+                  <option value="">-- Select --</option>
+                  <option value="gemini">Google Gemini (free tier)</option>
+                  <option value="openai">OpenAI</option>
+                  <option value="anthropic">Anthropic</option>
+                  <option value="openrouter">OpenRouter</option>
+                  <option value="ollama">Ollama (local)</option>
+                  <option value="custom">Custom Endpoint</option>
+                </select>
+              </div>
+              <div class="settings-row">
+                <label class="settings-label" for="settingAIApiKey">API Key</label>
+                <input type="password" id="settingAIApiKey" class="settings-input settings-input-compact" placeholder="sk-...">
+              </div>
+              <small class="settings-hint" style="margin-top:-8px">Stored locally. Only sent to your chosen provider.</small>
+              <div class="settings-row" id="modelSelectGroup">
+                <label class="settings-label" for="settingAIModel">Model</label>
+                <div style="display:flex;gap:6px;flex:1;min-width:0">
+                  <select id="settingAIModel" class="settings-input settings-input-compact" style="flex:1"><!-- populated dynamically --></select>
+                  <button id="fetchModelsBtn" class="btn-secondary btn-small" type="button" title="Fetch models from provider API">Fetch</button>
+                </div>
+              </div>
+              <div class="settings-row hidden" id="ollamaPortGroup">
+                <label class="settings-label" for="settingOllamaPort">Port</label>
+                <input type="number" id="settingOllamaPort" class="settings-input settings-input-compact" value="11434" min="1" max="65535" style="max-width:100px">
+              </div>
+              <div class="settings-row hidden" id="customEndpointGroup">
+                <label class="settings-label" for="settingAIEndpoint">Endpoint</label>
+                <input type="text" id="settingAIEndpoint" class="settings-input settings-input-compact" placeholder="https://localhost:11434/v1/chat/completions">
+              </div>
+              <div class="settings-row hidden" id="customModelGroup">
+                <label class="settings-label" for="settingCustomModel">Model</label>
+                <input type="text" id="settingCustomModel" class="settings-input settings-input-compact" placeholder="e.g. llama3, mistral, gpt-4o">
+              </div>
+              <div class="settings-row hidden" id="customFormatGroup">
+                <label class="settings-label" for="settingCustomFormat">Format</label>
+                <select id="settingCustomFormat" class="settings-input settings-input-compact">
+                  <option value="openai">OpenAI-compatible</option>
+                  <option value="anthropic">Anthropic-compatible</option>
+                </select>
+              </div>
+
+              <label class="settings-toggle">
+                <input type="checkbox" id="settingAutoExecute" checked>
+                <span class="toggle-text">Auto-execute AI actions</span>
+              </label>
+              <small class="settings-hint" style="margin-top:-6px">When off, you'll review and approve each action before it runs.</small>
+              <div class="settings-row" style="flex-direction:column;align-items:stretch">
+                <label class="settings-label" for="settingCustomPrompt">Custom Instructions</label>
+                <textarea id="settingCustomPrompt" class="settings-input" rows="3" placeholder="e.g., Always filter by dataAreaId=USMF, explain in bullet points..." style="resize:vertical;font-size:12px"></textarea>
+              </div>
+
+              <!-- inferenc.es card -->
+              <div class="inferences-card">
+                <div class="inferences-card-header">
+                  <span class="inferences-brand">inferenc.es</span>
+                  <span class="inferences-tagline">AI Data Analysis</span>
+                </div>
+                <div class="inferences-card-body">
+                  <div id="inferencesLoginForm">
+                    <button id="inferencesConnectBtn" class="btn-primary btn-small" type="button" style="width:100%">Connect inferenc.es</button>
+                  </div>
+                  <div id="inferencesLoggedIn" class="inferences-logged-in hidden">
+                    <span class="inferences-linked-badge">Linked</span>
+                    <span id="inferencesEmailDisplay" class="inferences-email"></span>
+                    <button id="inferencesLogoutBtn" class="btn-secondary btn-small" type="button">Logout</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Environment Section -->
+        <div class="settings-section">
+          <div class="settings-section-title">Environment</div>
+          <div class="settings-section-content">
+            <div id="settingEnvInfo" class="settings-info">--</div>
+            <div class="settings-row" style="margin-top:12px">
+              <label class="settings-label" for="settingEnvLabel">Badge Label</label>
+              <div style="display:flex;gap:8px;flex:1;min-width:0">
+                <input type="text" id="settingEnvLabel" class="settings-input settings-input-compact" placeholder="PROD / UAT / DEV / Custom" style="flex:1;max-width:160px" maxlength="12">
+                <button id="saveEnvLabelBtn" class="btn-primary btn-small" type="button">Save</button>
+                <button id="resetEnvLabelBtn" class="btn-secondary btn-small" type="button">Reset</button>
+              </div>
+            </div>
+            <small class="settings-hint">Custom label for the environment badge. Click the badge in the header to edit.</small>
+            <div class="settings-row" style="margin-top:12px">
+              <label class="settings-label" for="settingManualUrl">Manual URL</label>
+              <div style="display:flex;gap:8px;flex:1;min-width:0">
+                <input type="text" id="settingManualUrl" class="settings-input settings-input-compact" placeholder="https://your-org.operations.dynamics.us" style="flex:1">
+                <button id="setManualUrlBtn" class="btn-primary btn-small" type="button">Set</button>
+                <button id="clearManualUrlBtn" class="btn-secondary btn-small" type="button">Clear</button>
+              </div>
+            </div>
+            <small class="settings-hint">For government or custom domains not auto-detected. Enter the base URL without the OData path.</small>
+            <div class="settings-row" style="margin-top:12px">
+              <label class="settings-label" for="settingOdataPath">OData Path</label>
+              <input type="text" id="settingOdataPath" class="settings-input settings-input-compact" placeholder="/data/" value="/data/" style="flex:1;max-width:220px">
+            </div>
+            <small class="settings-hint">The path between your base URL and entity name. Default: /data/ — e.g. https://env.dynamics.com<strong>/data/</strong>EntityName</small>
+          </div>
+        </div>
+
+        <!-- Maintenance Section -->
+        <div class="settings-section">
+          <div class="settings-section-title">Maintenance</div>
+          <div class="settings-section-content settings-maintenance">
+            <button id="clearCacheBtn" class="btn-secondary btn-small">Clear Entity Cache</button>
+            <button id="clearStorageBtn" class="btn-danger-outline btn-small">Reset All Settings</button>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Join Modal -->
+  <div id="manualJoinModal" class="modal hidden">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h3>&#128200; Join with Another Entity</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-hint">Join data from another entity by matching field values. This fetches both datasets and joins them client-side.</p>
+
+        <div class="join-config">
+          <div class="join-section">
+            <label class="join-label">Current Entity</label>
+            <div class="join-entity-name" id="joinCurrentEntity">-</div>
+            <label class="join-label">Join Field (from current)</label>
+            <select id="joinCurrentField" class="join-select">
+              <option value="">Select field...</option>
+            </select>
+          </div>
+
+          <div class="join-arrow">&#8596;</div>
+
+          <div class="join-section">
+            <label class="join-label">Target Entity</label>
+            <div class="join-input-wrapper">
+              <input type="text" id="joinTargetEntity" class="join-input" placeholder="Search entity...">
+              <div id="joinEntityDropdown" class="entity-dropdown hidden"></div>
+            </div>
+            <label class="join-label">Join Field (from target)</label>
+            <select id="joinTargetField" class="join-select" disabled>
+              <option value="">Select entity first...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="join-columns-section hidden" id="joinColumnsSection">
+          <label class="join-label">Columns to include from target entity:</label>
+          <div class="join-columns-list" id="joinColumnsList"></div>
+
+          <div class="join-options">
+            <label class="join-option">
+              <input type="checkbox" id="joinInnerOnly">
+              <span>Only show matched rows</span>
+              <small>(Hide rows where target entity has no match - like INNER JOIN)</small>
+            </label>
+          </div>
+        </div>
+
+        <div class="join-preview hidden" id="joinPreview">
+          <label>Join Preview:</label>
+          <code id="joinPreviewText">-</code>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelJoinBtn" class="btn-secondary">Cancel</button>
+        <button id="executeJoinBtn" class="btn-primary" disabled>Execute Join</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Entities Modal -->
+  <div id="relatedEntitiesModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>&#128279; Related Entities (Expand/JOIN)</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-hint">Select related entities to include in the query. This uses OData $expand to JOIN data.</p>
+        <p class="modal-warning">⚠️ <strong>Note:</strong> $expand may fail for some entities due to D365 serialization issues. If you get errors, use the <strong>Join</strong> button instead for more reliable cross-entity queries.</p>
+        <div id="relatedEntitiesList" class="related-list">
+          <div class="empty-hint">No related entities found for this entity.</div>
+        </div>
+        <div class="expand-info hidden" id="expandInfo">
+          <label>Current $expand:</label>
+          <code id="expandPreview">-</code>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="clearExpandBtn" class="btn-secondary">Clear All</button>
+        <button id="applyExpandBtn" class="btn-primary">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../shared/odata-client.js"></script>
+  <script src="../shared/storage.js"></script>
+  <script src="../shared/svg-icons.js"></script>
+  <script src="power-tools.js"></script>
+  <script src="ai-settings.js"></script>
+  <script src="ai-assistant.js"></script>
+  <script src="ai-analyze.js"></script>
+  <script src="browser.js"></script>
+</body>
+</html>
