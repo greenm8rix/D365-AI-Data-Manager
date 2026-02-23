@@ -70,7 +70,6 @@ Ask the AI to filter, sort, join, highlight, or export your data using plain Eng
   | **OpenAI** | GPT-4o, GPT-4, etc. |
   | **Anthropic** | Claude models |
   | **OpenRouter** | Access 100+ models through one API |
-  | **inferenc.es** | Built-in analysis platform |
   | **Custom endpoint** | Any OpenAI-compatible API |
 
 - **Auto-execute** mode (opt-in) — AI runs code automatically without confirmation
@@ -182,7 +181,7 @@ d365-table-browser/
 │   ├── browser.css            # All styles
 │   ├── ai-assistant.js        # Agentic AI chat panel
 │   ├── ai-settings.js         # AI provider config + auth
-│   ├── ai-analyze.js          # AI data analysis via inferenc.es
+│   ├── ai-analyze.js          # AI data analysis
 │   └── power-tools.js         # Power BI / Automate / Apps exports
 ├── shared/
 │   ├── odata-client.js        # OData queries + $metadata parsing
