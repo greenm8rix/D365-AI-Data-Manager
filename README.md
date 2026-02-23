@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
+  <a href="https://chromewebstore.google.com/detail/d365-ai-data-manager/kohhbmpnanpfbdbgladijhohdgbfmagh"><img src="https://img.shields.io/chrome-web-store/v/kohhbmpnanpfbdbgladijhohdgbfmagh?label=Chrome%20Web%20Store&logo=googlechrome&logoColor=white&color=4285F4" alt="Chrome Web Store" /></a>
   <a href="https://github.com/greenm8rix/D365-AI-Data-Manager/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>
   <img src="https://img.shields.io/badge/manifest-v3-green.svg" alt="Manifest V3" />
-  <img src="https://img.shields.io/badge/version-2.2.0-purple.svg" alt="Version" />
   <img src="https://img.shields.io/badge/build-no%20bundler-orange.svg" alt="No Bundler" />
 </p>
 
@@ -97,7 +97,9 @@ Ask the AI to filter, sort, join, highlight, or export your data using plain Eng
 
 ### From Chrome Web Store
 
-> Coming soon — or install as an unpacked extension below.
+<a href="https://chromewebstore.google.com/detail/d365-ai-data-manager/kohhbmpnanpfbdbgladijhohdgbfmagh">
+  <img src="https://img.shields.io/badge/Install-Chrome%20Web%20Store-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Install from Chrome Web Store" />
+</a>
 
 ### As Unpacked Extension (Developer)
 
